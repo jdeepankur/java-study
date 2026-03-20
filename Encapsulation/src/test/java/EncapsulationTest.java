@@ -211,4 +211,104 @@ public class EncapsulationTest {
         Rectangle rect = new Rectangle();
         assertThrows(IllegalArgumentException.class, () -> rect.setWidth(-1));
     }
+
+    @Test
+    public void testAllEmployeeFieldsArePrivate() {
+        Field[] fields = Employee.class.getDeclaredFields();
+        for (Field field : fields) {
+            assertTrue(Modifier.isPrivate(field.getModifiers()),
+                    "Field '" + field.getName() + "' should be private");
+        }
+    }
+
+    @Test
+    public void testEmployeeIDGetterAndSetter() {
+        Employee employee = new Employee("£50,000.00");
+        long employeeID = 12345L;
+        employee.setID(employeeID);
+        assertEquals(employeeID, employee.getID());
+    }
+
+    @Test
+    public void testEmployeeIDWithLargeValue() {
+        Employee employee = new Employee("£75,000.00");
+        long largeID = 9999999999L;
+        employee.setID(largeID);
+        assertEquals(largeID, employee.getID());
+    }
+
+    @Test
+    public void testEmployeeIDWithZero() {
+        Employee employee = new Employee("£60,000.00");
+        employee.setID(0L);
+        assertEquals(0L, employee.getID());
+    }
+
+    @Test
+    public void testEmployeeNameGetterAndSetter() {
+        Employee employee = new Employee("£50,000.00");
+        String name = "John Smith";
+        employee.setName(name);
+        assertEquals(name, employee.getName());
+    }
+
+    @Test
+    public void testEmployeeNameWithEmptyString() {
+        Employee employee = new Employee("£50,000.00");
+        employee.setName("");
+        assertEquals("", employee.getName());
+    }
+
+    @Test
+    public void testEmployeeNameWithSpecialCharacters() {
+        Employee employee = new Employee("£50,000.00");
+        String name = "Jean-Pierre O'Brien";
+        employee.setName(name);
+        assertEquals(name, employee.getName());
+    }
+
+    @Test
+    public void testEmployeeSalaryOnInitialization() {
+        Employee employee = new Employee("£50,000.00");
+        assertEquals("£50,000.00", employee.getSalary());
+    }
+
+    @Test
+    public void testEmployeeSalaryWithZero() {
+        Employee employee = new Employee("£0.00");
+        assertEquals("£0.00", employee.getSalary());
+    }
+
+    @Test
+    public void testEmployeeSalaryWithLargeValue() {
+        Employee employee = new Employee("£999,999.00");
+        assertEquals("£999,999.00", employee.getSalary());
+    }
+
+    @Test
+    public void testEmployeeIDNegativeValue() {
+        Employee employee = new Employee("£50,000.00");
+        long negativeID = -12345L;
+        employee.setID(negativeID);
+        assertEquals(negativeID, employee.getID());
+    }
+
+    @Test
+    public void testEmployeeSalaryThousandSeparator() {
+        Employee employee = new Employee("£125,750.00");
+        assertEquals("£125,750.00", employee.getSalary());
+    }
+
+    @Test
+    public void testEmployeeSalarySmallAmount() {
+        Employee employee = new Employee("£500.00");
+        assertEquals("£500.00", employee.getSalary());
+    }
+
+    @Test
+    public void testEmployeeSalaryImproperlyFormattedThrows() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Employee("50000");
+        });
+    }
 }

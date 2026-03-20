@@ -1,4 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: EncapsulationTest
 -------------------------------------------------------------------------------
-Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.152 s - in EncapsulationTest
+Tests run: 39, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.134 s <<< FAILURE! - in EncapsulationTest
+testEmployeeSalaryWithLargeValue  Time elapsed: 0.01 s  <<< FAILURE!
+org.opentest4j.AssertionFailedError: expected: <£999,999.00> but was: <£999,999.04>
+	at EncapsulationTest.testEmployeeSalaryWithLargeValue(EncapsulationTest.java:285)
+
