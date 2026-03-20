@@ -1,0 +1,11 @@
+#!/bin/bash
+
+dataDir="$TESTDIR/../Instances"
+
+read filename < /dev/stdin
+
+# just look at first field of first line 
+java LBSMain SOLVE $dataDir/$filename | head -1 | sed "s/^ *//" | cut -f 1 -d" "
+
+
+
