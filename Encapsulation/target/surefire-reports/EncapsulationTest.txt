@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: EncapsulationTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.055 s - in EncapsulationTest
+Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.152 s - in EncapsulationTest

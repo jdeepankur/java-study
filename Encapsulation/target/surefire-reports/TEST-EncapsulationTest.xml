@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="EncapsulationTest" time="0.055" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="EncapsulationTest" time="0.152" tests="20" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -12,7 +12,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="session.topDirectory" value="/workspaces/java-study/Encapsulation"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk-amd64/lib"/>
-    <property name="sun.java.command" value="/workspaces/java-study/Encapsulation/target/surefire/surefirebooter11425443560655544926.jar /workspaces/java-study/Encapsulation/target/surefire 2026-03-20T09-08-56_773-jvmRun1 surefire13664890148282317348tmp surefire_017373184792793016048tmp"/>
+    <property name="sun.java.command" value="/workspaces/java-study/Encapsulation/target/surefire/surefirebooter10960396212335302297.jar /workspaces/java-study/Encapsulation/target/surefire 2026-03-20T14-06-07_165-jvmRun1 surefire2555204035909461223tmp surefire_010577282947962109077tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/workspaces/java-study/Encapsulation/target/test-classes:/workspaces/java-study/Encapsulation/target/classes:/home/codespace/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.9.2/junit-jupiter-api-5.9.2.jar:/home/codespace/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/codespace/.m2/repository/org/junit/platform/junit-platform-commons/1.9.2/junit-platform-commons-1.9.2.jar:/home/codespace/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/codespace/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.9.2/junit-jupiter-engine-5.9.2.jar:/home/codespace/.m2/repository/org/junit/platform/junit-platform-engine/1.9.2/junit-platform-engine-1.9.2.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -27,7 +27,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/workspaces/java-study/Encapsulation/target/surefire/surefirebooter11425443560655544926.jar"/>
+    <property name="surefire.real.class.path" value="/workspaces/java-study/Encapsulation/target/surefire/surefirebooter10960396212335302297.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.10+7-Ubuntu-124.04"/>
     <property name="user.name" value="codespace"/>
@@ -53,5 +53,24 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testAllPersonFieldsArePrivate" classname="EncapsulationTest" time="0.037"/>
+  <testcase name="testSetAccountNumberWithZero" classname="EncapsulationTest" time="0.049"/>
+  <testcase name="testSetAccountNumberWithInvalidValue" classname="EncapsulationTest" time="0.015"/>
+  <testcase name="testSetAccountNumberWithMinimumBoundaryValue" classname="EncapsulationTest" time="0"/>
+  <testcase name="testSetAccountNumberWithValidValue" classname="EncapsulationTest" time="0"/>
+  <testcase name="testSetAccountNumberWithNegativeValue" classname="EncapsulationTest" time="0.002"/>
+  <testcase name="testSetBalanceWithCents" classname="EncapsulationTest" time="0.005"/>
+  <testcase name="testSetAccountNumberWithLargeValidValue" classname="EncapsulationTest" time="0.003"/>
+  <testcase name="testSetBalanceWithZero" classname="EncapsulationTest" time="0.001"/>
+  <testcase name="testCountryGetterAndSetter" classname="EncapsulationTest" time="0.003"/>
+  <testcase name="testGetBalance" classname="EncapsulationTest" time="0"/>
+  <testcase name="testSetBalanceWithValidValue" classname="EncapsulationTest" time="0"/>
+  <testcase name="testAgeGetterAndSetter" classname="EncapsulationTest" time="0.004"/>
+  <testcase name="testSetBalanceWithSingleCent" classname="EncapsulationTest" time="0.005"/>
+  <testcase name="testGetAccountNumber" classname="EncapsulationTest" time="0.002"/>
+  <testcase name="testSetBalanceWithNegativeValue" classname="EncapsulationTest" time="0.007"/>
+  <testcase name="testBalanceFieldIsPrivate" classname="EncapsulationTest" time="0.003"/>
+  <testcase name="testNameGetterAndSetter" classname="EncapsulationTest" time="0.005"/>
+  <testcase name="testAllPersonFieldsArePrivate" classname="EncapsulationTest" time="0.013"/>
+  <testcase name="testAllBankAccountFieldsArePrivate" classname="EncapsulationTest" time="0.008"/>
+  <testcase name="testSetBalanceWithLargeValue" classname="EncapsulationTest" time="0"/>
 </testsuite>
