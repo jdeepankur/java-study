@@ -140,3 +140,27 @@ class Employee {
         this.employee_salary = Integer.parseInt(raw_salary);
     }
 }
+
+class Circle {
+    private double radius = 0.0;
+
+    public double getRadius() {
+        return this.radius;
+    }
+    public void setRadius(double radius) {
+        if (radius >= 0) {
+            this.radius = radius;
+        }
+        else {
+            throw new IllegalArgumentException("Radius must be a positive number.");
+        }
+    }
+
+    public double calculateArea() {
+        return Math.PI * radius * radius;
+    }
+
+    public double calculateCircumference() {
+        return 2 * Math.PI * radius;
+    }
+}

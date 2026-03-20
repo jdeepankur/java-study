@@ -311,4 +311,64 @@ public class EncapsulationTest {
             new Employee("50000");
         });
     }
+
+    @Test
+    public void testAllCircleFieldsArePrivate() {
+        Field[] fields = Circle.class.getDeclaredFields();
+        for (Field field : fields) {
+            assertTrue(Modifier.isPrivate(field.getModifiers()),
+                    "Field '" + field.getName() + "' should be private");
+        }
+    }
+
+    @Test
+    public void testCircleRadiusGetterAndSetter() {
+        Circle circle = new Circle();
+        double expectedRadius = 7.5;
+        circle.setRadius(expectedRadius);
+        assertEquals(expectedRadius, circle.getRadius(), 0.000001);
+    }
+
+    @Test
+    public void testCircleRadiusWithZero() {
+        Circle circle = new Circle();
+        circle.setRadius(0.0);
+        assertEquals(0.0, circle.getRadius(), 0.000001);
+    }
+
+    @Test
+    public void testCircleRadiusNegativeThrows() {
+        Circle circle = new Circle();
+        assertThrows(IllegalArgumentException.class, () -> {
+            circle.setRadius(-1.0);
+        });
+    }
+
+    @Test
+    public void testCircleAreaCalculation() {
+        Circle circle = new Circle();
+        circle.setRadius(2.0);
+        assertEquals(Math.PI * 4.0, circle.calculateArea(), 0.000001);
+    }
+
+    @Test
+    public void testCircleAreaWithZeroRadius() {
+        Circle circle = new Circle();
+        circle.setRadius(0.0);
+        assertEquals(0.0, circle.calculateArea(), 0.000001);
+    }
+
+    @Test
+    public void testCircleCircumferenceCalculation() {
+        Circle circle = new Circle();
+        circle.setRadius(2.0);
+        assertEquals(2.0 * Math.PI * 2.0, circle.calculateCircumference(), 0.000001);
+    }
+
+    @Test
+    public void testCircleCircumferenceWithZeroRadius() {
+        Circle circle = new Circle();
+        circle.setRadius(0.0);
+        assertEquals(0.0, circle.calculateCircumference(), 0.000001);
+    }
 }
