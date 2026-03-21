@@ -1,0 +1,24 @@
+package com.testapp.controller
+
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+class DatabaseControllerKt {
+    private var count = 0
+    
+
+    @GetMapping("/")
+    fun index(): String {
+        return "Navigate to " +
+            """<a href="/greeting?name=World">/greeting</a>"""
+    }
+
+    @GetMapping("/greeting")
+    fun greeting(name: String): Map<String, Any> {
+        return mapOf(
+            "id" to ++count,
+            "content" to "Hello, $name!"
+        )
+    }
+}
