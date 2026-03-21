@@ -53,7 +53,7 @@ public class DatabaseController {
     
   }
 
-  @GetMapping("/error")
+  @RequestMapping("/error")
   public Map error() {
     return Map.of(
       "status", "error",
