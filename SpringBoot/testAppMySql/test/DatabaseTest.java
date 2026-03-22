@@ -58,7 +58,18 @@ class DatabaseTest {
 
     @Test
     void createTableExecutesCorrectSQL() throws SQLException {
-        Database.createTable("users");
+        String[] columns = {"name", "email"};
+        Database.createTable("users", columns);
+
+        verify(mockStatement).execute(
+            "CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), email VARCHAR(255))"
+        );
+    }
+
+    @Test
+    void createTableWithSingleColumn() throws SQLException {
+        String[] columns = {"name"};
+        Database.createTable("users", columns);
 
         verify(mockStatement).execute(
             "CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))"
@@ -69,7 +80,7 @@ class DatabaseTest {
     void createTableThrowsWhenConnectionFails() throws SQLException {
         when(mockConnection.createStatement()).thenThrow(new SQLException("Connection lost"));
 
-        assertThrows(SQLException.class, () -> Database.createTable("users"));
+        assertThrows(SQLException.class, () -> Database.createTable("users", new String[]{"name"}));
     }
 
     // --- insertValue tests ---

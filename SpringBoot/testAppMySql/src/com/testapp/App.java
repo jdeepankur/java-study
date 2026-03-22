@@ -8,13 +8,15 @@ import com.testapp.model.Database;
 @SpringBootApplication
 public class App {
     private static final int PORT = 8082;
+    private static final String[] COLUMNS = {"name", "email"};
+    private static final String TABLENAME = "Users";
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(App.class);
 
         try {
             Database.connect();
-            Database.createTable("Users");
+            Database.createTable(TABLENAME, COLUMNS);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

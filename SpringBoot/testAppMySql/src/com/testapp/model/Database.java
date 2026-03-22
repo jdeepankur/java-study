@@ -12,14 +12,17 @@ public class Database {
     private static final String url = "jdbc:mysql://localhost:" + port + "/testdb";
     private static final String user = "root";
     private static final String password = "password";
-    private static final int MAX_ATTEMPTS = 50;
 
     private static Connection connection;
 
 
-    public static void createTable(String tableName) throws SQLException {
-        String sql = "CREATE TABLE IF NOT EXISTS " + tableName + " (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))";
-        connection.createStatement().execute(sql);
+    public static void createTable(String tableName, String[] columns) throws SQLException {
+        StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tableName + " (id INT PRIMARY KEY AUTO_INCREMENT");
+        for (String column : columns) {
+            sql.append(", ").append(column).append(" VARCHAR(255)");
+        }
+        sql.append(")");
+        connection.createStatement().execute(sql.toString());
     }
 
     public static void insertValue(String tableName, String[] columns, String[] values) throws SQLException {
