@@ -1,3 +1,3 @@
-com/testapp/App.class
-com/testapp/controller/DatabaseController.class
-com/testapp/model/Database.class
+com\testapp\App.class
+com\testapp\model\Database.class
+com\testapp\controller\DatabaseController.class
