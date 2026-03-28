@@ -1,12 +1,12 @@
 import java.util.*;
 import java.util.stream.Stream;
 
-import com.google.gson.GsonBuilder;
+// import com.google.gson.GsonBuilder;
 
 public class Q2 {
-    public static void print(Object o) {
-        System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(o));
-    }
+    // public static void print(Object o) {
+    //     System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(o));
+    // }
 
     public static boolean isBalanced(String html) {
         Tree root =  new Tree();
@@ -46,15 +46,15 @@ public class Q2 {
                     nodes.add(currNode);
                 }
                 else {
-                    currNode.closed = true;
-                    currNode = currNode.parent;
-                    closing = false;
                     String tag = currTag.substring(currTag.indexOf('/') + 1, currTag.indexOf('>'));
-                    if (currNode == null || !currNode.containsKey(tag)) {
+                    if (currNode.parent.containsKey(tag) && currNode.parent.get(tag).closed) {
                         return false;
                     }
-                    else {
-                        print(currNode);
+                    currNode.closed = true;
+                    currNode = currNode.parent;
+                    closing = false; 
+                    if (currNode == null || !currNode.containsKey(tag)) {
+                        return false;
                     }
                 }
 
