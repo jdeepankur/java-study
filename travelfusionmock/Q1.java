@@ -11,27 +11,26 @@ class Question1 {
         }
 
         else {
-            int[] cands = Arrays.copyOfRange(prices, 0, 2);
-            for (int i = 2; i < prices.length; i++) {
-                int newprice = prices[i];
-                int gap = Math.abs(Arrays.stream(cands).sum() - target);
-                if (gap == 0) {
-                    return cands;
+            Arrays.sort(prices);
+            
+            int a = 0;
+            int b = prices.length - 1;
+
+            while (a < b - 1) {
+                int sum = prices[a] + prices[b];
+
+                if (sum == target) {
+                    break;
                 }
-
-                int[] _cands = Arrays.stream(cands).map(x -> Math.abs(x + newprice - target)).toArray();
-                int min = IntStream.range(0, _cands.length)
-                    .reduce((a, b) -> _cands[a] <= _cands[b] ? a : b)
-                    .getAsInt();
-
-                if (_cands[min] < gap) {
-                    cands = new int[]{cands[min], newprice};
-
+                else if (sum < target) {
+                    a++;
                 }
-
+                else {
+                    b--;
+                }
             }
 
-            return cands;
+            return new int[]{prices[a], prices[b]};
         }
 
     }
