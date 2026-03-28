@@ -47,7 +47,7 @@ public class Q2 {
                 }
                 else {
                     String tag = currTag.substring(currTag.indexOf('/') + 1, currTag.indexOf('>'));
-                    if (currNode.parent.containsKey(tag) && currNode.parent.get(tag).closed) {
+                    if (currNode.parent != null && currNode.parent.containsKey(tag) && currNode.parent.get(tag).closed) {
                         return false;
                     }
                     currNode.closed = true;
