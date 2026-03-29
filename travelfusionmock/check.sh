@@ -27,7 +27,9 @@ run_q() {
         local testname=$(basename "${infile%.in}")
         any=1
 
-        actual=$(java "$src" < "$infile" 2>/dev/null)
+        local cp_args=()
+        [ "$q" = "q4" ] && cp_args=(--class-path "gson.jar")
+        actual=$(java "${cp_args[@]}" "$src" < "$infile" 2>/dev/null)
         expected=$(cat "$outfile")
 
         if [ "$q" = "q5" ]; then

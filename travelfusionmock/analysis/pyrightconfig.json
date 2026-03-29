@@ -1,0 +1,12 @@
+{
+  "typeCheckingMode": "basic",
+  "reportUnknownMemberType": false,
+  "reportUnknownArgumentType": false,
+  "reportUnknownVariableType": false,
+  "reportUnknownParameterType": false,
+  "reportMissingTypeStubs": false,
+  "reportMissingModuleSource": false,
+  "reportReturnType": false,
+  "reportGeneralClassIssues": false,
+  "reportUndefinedVariable": "warning"
+}

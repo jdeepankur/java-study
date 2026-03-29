@@ -27,35 +27,45 @@ Strategy per constraint type:
 from __future__ import annotations
 import random
 import string
-import itertools
 from typing import Optional
 
 from constraints import (
-    Constraint, AndConstraint, OrConstraint, NotConstraint,
-    NotNullConstraint, NotEmptyConstraint,
-    LengthConstraint, RegexConstraint,
-    StartsWithConstraint, EndsWithConstraint,
-    ContainsConstraint, EqualsConstraint,
-    CharClassConstraint, ParseIntConstraint, ParseDoubleConstraint,
-    OpaqueConstraint, TrueConstraint, FalseConstraint,
+    Constraint,
+    AndConstraint,
+    OrConstraint,
+    NotConstraint,
+    NotNullConstraint,
+    NotEmptyConstraint,
+    LengthConstraint,
+    RegexConstraint,
+    StartsWithConstraint,
+    EndsWithConstraint,
+    ContainsConstraint,
+    EqualsConstraint,
+    CharClassConstraint,
+    ParseIntConstraint,
+    ParseDoubleConstraint,
+    OpaqueConstraint,
+    TrueConstraint,
+    FalseConstraint,
 )
-
 
 # ── Character pools ───────────────────────────────────────────────────────────
 
 POOLS = {
-    "digit":  string.digits,
-    "alpha":  string.ascii_letters,
-    "alnum":  string.ascii_letters + string.digits,
-    "upper":  string.ascii_uppercase,
-    "lower":  string.ascii_lowercase,
-    "space":  " \t\n",
+    "digit": string.digits,
+    "alpha": string.ascii_letters,
+    "alnum": string.ascii_letters + string.digits,
+    "upper": string.ascii_uppercase,
+    "lower": string.ascii_lowercase,
+    "space": " \t\n",
     "ascii_printable": string.printable.strip(),
-    "any":    string.ascii_letters + string.digits + " !@#$%^&*()-_=+[]{}|;:',.<>?/`~",
+    "any": string.ascii_letters + string.digits + " !@#$%^&*()-_=+[]{}|;:',.<>?/`~",
 }
 
 
 # ── Solved context (accumulated constraints for one generation pass) ───────────
+
 
 class SolvedContext:
     """
@@ -63,6 +73,7 @@ class SolvedContext:
     character pool, and a list of regex patterns,
     all to be intersected during generation.
     """
+
     def __init__(self):
         self.min_length: int = 0
         self.max_length: int = 50
@@ -70,15 +81,15 @@ class SolvedContext:
         self.prefix: str = ""
         self.suffix: str = ""
         self.contains: list[str] = []
-        self.char_pool: Optional[str] = None   # None = any
+        self.char_pool: Optional[str] = None  # None = any
         self.regex_patterns: list[str] = []
         self.fixed_value: Optional[str] = None  # EqualsConstraint
         self.impossible: bool = False
         self.opaque: bool = False
         self.opaque_reason: str = ""
         # Numeric constraints produce strings directly
-        self.int_constraints: list[tuple[str,int]] = []    # (op, value)
-        self.double_constraints: list[tuple[str,float]] = []
+        self.int_constraints: list[tuple[str, int]] = []  # (op, value)
+        self.double_constraints: list[tuple[str, float]] = []
 
     def intersect_pool(self, pool: str):
         if self.char_pool is None:
@@ -160,7 +171,14 @@ def _build_context(constraint: Constraint, ctx: SolvedContext):
             ctx.exact_length = 0
         elif isinstance(inner, LengthConstraint):
             # negate length constraint
-            op_neg = {"==": "!=", "!=": "==", "<": ">=", "<=": ">", ">": "<=", ">=": "<"}
+            op_neg = {
+                "==": "!=",
+                "!=": "==",
+                "<": ">=",
+                "<=": ">",
+                ">": "<=",
+                ">=": "<",
+            }
             _apply_length(ctx, LengthConstraint(op_neg[inner.op], inner.value))
         elif isinstance(inner, FalseConstraint):
             return  # NOT false → true, no constraint
@@ -239,14 +257,17 @@ def _build_context(constraint: Constraint, ctx: SolvedContext):
 
 # ── Regex generation ──────────────────────────────────────────────────────────
 
+
 def _try_import_regex_gen():
     try:
         import exrex
+
         return exrex
     except ImportError:
         pass
     try:
         import rstr
+
         return rstr
     except ImportError:
         pass
@@ -257,18 +278,18 @@ def _generate_from_regex(pattern: str, n: int) -> Optional[list[str]]:
     lib = _try_import_regex_gen()
     if lib is None:
         return None
-    results = set()
+    results: set[str] = set()
     attempts = 0
     max_attempts = n * 200
     while len(results) < n and attempts < max_attempts:
         attempts += 1
         try:
-            if hasattr(lib, 'getone'):
-                s = lib.getone(pattern)
-            elif hasattr(lib, 'xeger'):
-                s = lib.xeger(pattern)
+            if hasattr(lib, "getone"):
+                s: str = lib.getone(pattern)
+            elif hasattr(lib, "xeger"):
+                s: str = lib.xeger(pattern)
             else:
-                s = next(lib.generate(pattern, limit=1))
+                s: str = next(lib.generate(pattern, limit=1)) 
             results.add(s)
         except Exception:
             break
@@ -277,27 +298,40 @@ def _generate_from_regex(pattern: str, n: int) -> Optional[list[str]]:
 
 # ── Integer / double generators ───────────────────────────────────────────────
 
-def _satisfies_int_constraints(v: int, constraints: list[tuple[str,int]]) -> bool:
+
+def _satisfies_int_constraints(v: int, constraints: list[tuple[str, int]]) -> bool:
     for op, n in constraints:
-        if op == "==" and not (v == n): return False
-        if op == "!=" and not (v != n): return False
-        if op == "<"  and not (v <  n): return False
-        if op == "<=" and not (v <= n): return False
-        if op == ">"  and not (v >  n): return False
-        if op == ">=" and not (v >= n): return False
+        if op == "==" and not (v == n):
+            return False
+        if op == "!=" and not (v != n):
+            return False
+        if op == "<" and not (v < n):
+            return False
+        if op == "<=" and not (v <= n):
+            return False
+        if op == ">" and not (v > n):
+            return False
+        if op == ">=" and not (v >= n):
+            return False
     return True
 
 
-def _generate_int_strings(constraints: list[tuple[str,int]], n: int) -> list[str]:
+def _generate_int_strings(constraints: list[tuple[str, int]], n: int) -> list[str]:
     """Enumerate integers that satisfy all constraints."""
     # Compute a search range from the constraints
-    lo, hi = -10**9, 10**9
+    lo, hi = -(10**9), 10**9
     for op, v in constraints:
-        if op == "==":  lo = hi = v; break
-        if op == ">":   lo = max(lo, v + 1)
-        if op == ">=":  lo = max(lo, v)
-        if op == "<":   hi = min(hi, v - 1)
-        if op == "<=":  hi = min(hi, v)
+        if op == "==":
+            lo = hi = v
+            break
+        if op == ">":
+            lo = max(lo, v + 1)
+        if op == ">=":
+            lo = max(lo, v)
+        if op == "<":
+            hi = min(hi, v - 1)
+        if op == "<=":
+            hi = min(hi, v)
 
     results = []
     # Try a spread of values in [lo, hi]
@@ -313,7 +347,10 @@ def _generate_int_strings(constraints: list[tuple[str,int]], n: int) -> list[str
 
 # ── Core generator ────────────────────────────────────────────────────────────
 
-def _fill_string(ctx: SolvedContext, existing_prefix: str = "", existing_suffix: str = "") -> str:
+
+def _fill_string(
+    ctx: SolvedContext, existing_prefix: str = "", existing_suffix: str = ""
+) -> str:
     """Generate one string that satisfies length + pool constraints."""
     lo, hi = ctx.effective_length_range()
     lo = max(lo, 0)
@@ -339,7 +376,7 @@ class SolverResult:
     def __init__(self, strings: list[str], used_llm: bool, method: str):
         self.strings = strings
         self.used_llm = used_llm
-        self.method = method   # human-readable description of what was used
+        self.method = method  # human-readable description of what was used
 
 
 def generate(constraint: Constraint, n: int) -> SolverResult:
@@ -362,7 +399,9 @@ def generate(constraint: Constraint, n: int) -> SolverResult:
             for c in other:
                 _build_context(c, and_ctx)
             if and_ctx.opaque and and_ctx.opaque_reason != "__or__":
-                return SolverResult([], used_llm=True, method="LLM (opaque sub-constraint in And)")
+                return SolverResult(
+                    [], used_llm=True, method="LLM (opaque sub-constraint in And)"
+                )
             results = []
             for branch in or_children[0].children:
                 sub = AndConstraint([branch] + other) if other else branch
@@ -372,35 +411,44 @@ def generate(constraint: Constraint, n: int) -> SolverResult:
                 results.extend(r.strings)
                 if len(results) >= n:
                     break
-            return SolverResult(results[:n], used_llm=False, method="symbolic (Or branch expansion)")
+            return SolverResult(
+                results[:n], used_llm=False, method="symbolic (Or branch expansion)"
+            )
 
     ctx = SolvedContext()
     _build_context(constraint, ctx)
 
     # ── Opaque → need LLM ──────────────────────────────────────────────────
     if ctx.opaque and ctx.opaque_reason != "__or__":
-        return SolverResult([], used_llm=True,
-                            method=f"LLM (opaque: {ctx.opaque_reason})")
+        return SolverResult(
+            [], used_llm=True, method=f"LLM (opaque: {ctx.opaque_reason})"
+        )
 
     if ctx.impossible:
-        return SolverResult([], used_llm=False,
-                            method="symbolic (impossible constraint — no valid strings)")
+        return SolverResult(
+            [],
+            used_llm=False,
+            method="symbolic (impossible constraint — no valid strings)",
+        )
 
     # ── Fixed value ────────────────────────────────────────────────────────
     if ctx.fixed_value is not None:
-        return SolverResult([ctx.fixed_value] * n, used_llm=False,
-                            method="symbolic (exact value)")
+        return SolverResult(
+            [ctx.fixed_value] * n, used_llm=False, method="symbolic (exact value)"
+        )
 
     # ── Integer strings ────────────────────────────────────────────────────
     if ctx.int_constraints:
         strings = _generate_int_strings(ctx.int_constraints, n)
         if len(strings) >= n:
-            return SolverResult(strings[:n], used_llm=False,
-                                method="symbolic (integer enumeration)")
+            return SolverResult(
+                strings[:n], used_llm=False, method="symbolic (integer enumeration)"
+            )
         # Not enough; fall through to regex/fill with what we have
         if strings:
-            return SolverResult(strings, used_llm=False,
-                                method="symbolic (partial integer enumeration)")
+            return SolverResult(
+                strings, used_llm=False, method="symbolic (partial integer enumeration)"
+            )
 
     # ── Regex patterns ─────────────────────────────────────────────────────
     if ctx.regex_patterns:
@@ -414,33 +462,49 @@ def generate(constraint: Constraint, n: int) -> SolverResult:
 
         strings = _generate_from_regex(combined, n)
         if strings and len(strings) >= n:
-            return SolverResult(strings[:n], used_llm=False,
-                                method=f"symbolic (regex generation: {combined!r})")
+            return SolverResult(
+                strings[:n],
+                used_llm=False,
+                method=f"symbolic (regex generation: {combined!r})",
+            )
         if strings:
             # Partial — pad with fill if possible
             while len(strings) < n:
                 s = _fill_string(ctx)
                 if _matches_all_regex(s, ctx.regex_patterns):
                     strings.append(s)
-            return SolverResult(strings[:n], used_llm=False,
-                                method=f"symbolic (regex + fill: {combined!r})")
+            return SolverResult(
+                strings[:n],
+                used_llm=False,
+                method=f"symbolic (regex + fill: {combined!r})",
+            )
 
         # exrex/rstr not available — use alternation-aware structured generator
         import re
+
         strings = _generate_from_pattern_structured(combined, n)
         if strings:
-            return SolverResult(strings[:n], used_llm=False,
-                                method=f"symbolic (structured regex: {combined!r})")
+            return SolverResult(
+                strings[:n],
+                used_llm=False,
+                method=f"symbolic (structured regex: {combined!r})",
+            )
 
         # Still nothing — need LLM
-        return SolverResult([], used_llm=True,
-                            method=f"LLM (regex unsolvable symbolically: {combined!r})")
+        return SolverResult(
+            [],
+            used_llm=True,
+            method=f"LLM (regex unsolvable symbolically: {combined!r})",
+        )
 
     # ── Pure structural (prefix/suffix/length/char class) ──────────────────
     lo, hi = ctx.effective_length_range()
     if ctx.impossible:
-        return SolverResult([], used_llm=False,
-                            method="symbolic (impossible: length constraints unsatisfiable)")
+        return SolverResult(
+            [],
+            used_llm=False,
+            method="symbolic (impossible: length constraints unsatisfiable)",
+        )
 
     strings = set()
     attempts = 0
@@ -451,12 +515,18 @@ def generate(constraint: Constraint, n: int) -> SolverResult:
 
     method = "symbolic (structural: "
     parts = []
-    if ctx.prefix:       parts.append(f"prefix={ctx.prefix!r}")
-    if ctx.suffix:       parts.append(f"suffix={ctx.suffix!r}")
-    if ctx.contains:     parts.append(f"contains={ctx.contains}")
-    if ctx.char_pool:    parts.append(f"pool={ctx.char_pool[:20]!r}...")
-    if ctx.exact_length: parts.append(f"len={ctx.exact_length}")
-    elif lo or hi < 50:  parts.append(f"len∈[{lo},{hi}]")
+    if ctx.prefix:
+        parts.append(f"prefix={ctx.prefix!r}")
+    if ctx.suffix:
+        parts.append(f"suffix={ctx.suffix!r}")
+    if ctx.contains:
+        parts.append(f"contains={ctx.contains}")
+    if ctx.char_pool:
+        parts.append(f"pool={ctx.char_pool[:20]!r}...")
+    if ctx.exact_length:
+        parts.append(f"len={ctx.exact_length}")
+    elif lo or hi < 50:
+        parts.append(f"len∈[{lo},{hi}]")
     method += (", ".join(parts) or "any") + ")"
 
     return SolverResult(list(strings)[:n], used_llm=False, method=method)
@@ -487,8 +557,9 @@ def _length_range_from_pattern(pattern: str) -> tuple[int, int]:
     This is a rough lower/upper bound, not a formal analysis.
     """
     import re
+
     # Remove anchors
-    p = pattern.lstrip('^').rstrip('$')
+    p = pattern.lstrip("^").rstrip("$")
 
     # Count fixed-length tokens and quantifiers
     # Each char class [..], \d, \w, \s, or literal char contributes some length
@@ -497,30 +568,32 @@ def _length_range_from_pattern(pattern: str) -> tuple[int, int]:
     i = 0
     while i < len(p):
         # Escaped char
-        if p[i] == '\\' and i + 1 < len(p):
+        if p[i] == "\\" and i + 1 < len(p):
             token_lo = token_hi = 1
             i += 2
         # Character class
-        elif p[i] == '[':
-            end = p.index(']', i + 1) if ']' in p[i+1:] else len(p)
+        elif p[i] == "[":
+            end = p.index("]", i + 1) if "]" in p[i + 1 :] else len(p)
             token_lo = token_hi = 1
             i = end + 1
         # Group — treat as opaque, assume 1..10
-        elif p[i] == '(':
+        elif p[i] == "(":
             depth = 1
             j = i + 1
             while j < len(p) and depth:
-                if p[j] == '(': depth += 1
-                elif p[j] == ')': depth -= 1
+                if p[j] == "(":
+                    depth += 1
+                elif p[j] == ")":
+                    depth -= 1
                 j += 1
             token_lo, token_hi = 1, 10
             i = j
         # Dot
-        elif p[i] == '.':
+        elif p[i] == ".":
             token_lo = token_hi = 1
             i += 1
         # Literal
-        elif p[i] not in '+*?{|)':
+        elif p[i] not in "+*?{|)":
             token_lo = token_hi = 1
             i += 1
         else:
@@ -529,19 +602,23 @@ def _length_range_from_pattern(pattern: str) -> tuple[int, int]:
 
         # Check for quantifier following the token
         if i < len(p):
-            if p[i] == '?':
-                token_lo = 0; i += 1
-            elif p[i] == '*':
-                token_lo = 0; token_hi = 20; i += 1
-            elif p[i] == '+':
-                token_hi = max(token_hi, 20); i += 1
-            elif p[i] == '{':
-                m = re.match(r'\{(\d+)(?:,(\d*))?\}', p[i:])
+            if p[i] == "?":
+                token_lo = 0
+                i += 1
+            elif p[i] == "*":
+                token_lo = 0
+                token_hi = 20
+                i += 1
+            elif p[i] == "+":
+                token_hi = max(token_hi, 20)
+                i += 1
+            elif p[i] == "{":
+                m = re.match(r"\{(\d+)(?:,(\d*))?\}", p[i:])
                 if m:
                     token_lo = int(m.group(1))
                     if m.group(2) is None:
                         token_hi = token_lo
-                    elif m.group(2) == '':
+                    elif m.group(2) == "":
                         token_hi = token_lo * 3
                     else:
                         token_hi = int(m.group(2))
@@ -570,8 +647,10 @@ def _generate_from_pattern_structured(pattern: str, n: int) -> list[str]:
 
     # Strip anchors
     p = pattern
-    if p.startswith('^'): p = p[1:]
-    if p.endswith('$'):   p = p[:-1]
+    if p.startswith("^"):
+        p = p[1:]
+    if p.endswith("$"):
+        p = p[:-1]
 
     results = set()
     for _ in range(n * 100):
@@ -602,17 +681,17 @@ def _gen_pattern(pattern: str) -> str:
         lo, hi = _quant_range(quant)
         count = random.randint(lo, min(hi, lo + 5))
 
-        if token == 'group':
+        if token == "group":
             # pool_or_sub is the group content (string); may contain |
             for _ in range(count):
                 branch = _pick_alternation_branch(pool_or_sub)
                 result.append(_gen_pattern(branch))
-        elif token == 'class':
+        elif token == "class":
             for _ in range(count):
                 result.append(random.choice(pool_or_sub))
-        elif token == 'literal':
+        elif token == "literal":
             result.append(pool_or_sub * count)
-        elif token == 'any':
+        elif token == "any":
             for _ in range(count):
                 result.append(random.choice(string.ascii_letters + string.digits))
 
@@ -627,77 +706,88 @@ def _next_token(pattern: str, i: int):
              'group' = inner pattern string, 'any' = None
     """
     if i >= len(pattern):
-        return ('literal', 0, '')
+        return ("literal", 0, "")
 
     c = pattern[i]
 
     # Anchor chars — skip
-    if c in '^$':
-        return ('literal', 1, '')
+    if c in "^$":
+        return ("literal", 1, "")
 
     # Escaped sequence
-    if c == '\\' and i + 1 < len(pattern):
-        nc = pattern[i+1]
+    if c == "\\" and i + 1 < len(pattern):
+        nc = pattern[i + 1]
         pool = _shorthand_pool(nc)
         if pool:
-            return ('class', 2, pool)
-        return ('literal', 2, nc)
+            return ("class", 2, pool)
+        return ("literal", 2, nc)
 
     # Character class [...]
-    if c == '[':
+    if c == "[":
         end = _find_class_end(pattern, i)
-        pool = _expand_char_class(pattern[i+1:end])
-        return ('class', end - i + 1, pool)
+        pool = _expand_char_class(pattern[i + 1 : end])
+        return ("class", end - i + 1, pool)
 
     # Group (?: ...) or (...)
-    if c == '(':
+    if c == "(":
         end = _find_group_end(pattern, i)
-        inner = pattern[i+1:end]
+        inner = pattern[i + 1 : end]
         # Strip ?: prefix for non-capturing groups
-        if inner.startswith('?:'):
+        if inner.startswith("?:"):
             inner = inner[2:]
-        elif inner.startswith('?=') or inner.startswith('?!'):
-            inner = ''  # lookahead — ignore
-        return ('group', end - i + 1, inner)
+        elif inner.startswith("?=") or inner.startswith("?!"):
+            inner = ""  # lookahead — ignore
+        return ("group", end - i + 1, inner)
 
     # Dot
-    if c == '.':
-        return ('any', 1, None)
+    if c == ".":
+        return ("any", 1, None)
 
     # Pipe at top level — should be handled by caller via _pick_alternation_branch
-    if c == '|':
-        return ('literal', 1, '')
+    if c == "|":
+        return ("literal", 1, "")
 
-    return ('literal', 1, c)
+    return ("literal", 1, c)
 
 
 def _read_quantifier(pattern: str, i: int):
     """Returns (quantifier_string, length_consumed)."""
     if i >= len(pattern):
-        return ('1', 0)
+        return ("1", 0)
     c = pattern[i]
-    if c == '?': return ('?', 1)
-    if c == '*': return ('*', 1)
-    if c == '+': return ('+', 1)
-    if c == '{':
+    if c == "?":
+        return ("?", 1)
+    if c == "*":
+        return ("*", 1)
+    if c == "+":
+        return ("+", 1)
+    if c == "{":
         import re
-        m = re.match(r'\{(\d+)(?:,(\d*))?\}', pattern[i:])
+
+        m = re.match(r"\{(\d+)(?:,(\d*))?\}", pattern[i:])
         if m:
             return (m.group(0), len(m.group(0)))
-    return ('1', 0)
+    return ("1", 0)
 
 
 def _quant_range(quant: str) -> tuple[int, int]:
-    if quant == '?': return (0, 1)
-    if quant == '*': return (0, 4)
-    if quant == '+': return (1, 5)
-    if quant == '1': return (1, 1)
+    if quant == "?":
+        return (0, 1)
+    if quant == "*":
+        return (0, 4)
+    if quant == "+":
+        return (1, 5)
+    if quant == "1":
+        return (1, 1)
     import re
-    m = re.match(r'\{(\d+)(?:,(\d*))?\}', quant)
+
+    m = re.match(r"\{(\d+)(?:,(\d*))?\}", quant)
     if m:
         lo = int(m.group(1))
-        if m.group(2) is None:  return (lo, lo)
-        if m.group(2) == '':    return (lo, lo + 3)
+        if m.group(2) is None:
+            return (lo, lo)
+        if m.group(2) == "":
+            return (lo, lo + 3)
         return (lo, int(m.group(2)))
     return (1, 1)
 
@@ -705,11 +795,16 @@ def _quant_range(quant: str) -> tuple[int, int]:
 def _find_class_end(pattern: str, start: int) -> int:
     """Find the closing ] for a character class starting at start."""
     i = start + 1
-    if i < len(pattern) and pattern[i] == '^': i += 1
-    if i < len(pattern) and pattern[i] == ']': i += 1  # literal ] at start
+    if i < len(pattern) and pattern[i] == "^":
+        i += 1
+    if i < len(pattern) and pattern[i] == "]":
+        i += 1  # literal ] at start
     while i < len(pattern):
-        if pattern[i] == '\\': i += 2; continue
-        if pattern[i] == ']':  return i
+        if pattern[i] == "\\":
+            i += 2
+            continue
+        if pattern[i] == "]":
+            return i
         i += 1
     return len(pattern) - 1
 
@@ -719,11 +814,15 @@ def _find_group_end(pattern: str, start: int) -> int:
     depth = 0
     i = start
     while i < len(pattern):
-        if pattern[i] == '\\': i += 2; continue
-        if pattern[i] == '(':  depth += 1
-        elif pattern[i] == ')':
+        if pattern[i] == "\\":
+            i += 2
+            continue
+        if pattern[i] == "(":
+            depth += 1
+        elif pattern[i] == ")":
             depth -= 1
-            if depth == 0: return i
+            if depth == 0:
+                return i
         i += 1
     return len(pattern) - 1
 
@@ -731,19 +830,20 @@ def _find_group_end(pattern: str, start: int) -> int:
 def _expand_char_class(content: str) -> str:
     """Expand a character class body (without [ ]) into a pool string."""
     pool = []
-    negated = content.startswith('^')
-    if negated: content = content[1:]
+    negated = content.startswith("^")
+    if negated:
+        content = content[1:]
     i = 0
     while i < len(content):
-        if content[i] == '\\' and i + 1 < len(content):
-            p = _shorthand_pool(content[i+1])
+        if content[i] == "\\" and i + 1 < len(content):
+            p = _shorthand_pool(content[i + 1])
             if p:
                 pool.extend(p)
             else:
-                pool.append(content[i+1])
+                pool.append(content[i + 1])
             i += 2
-        elif i + 2 < len(content) and content[i+1] == '-':
-            for c in range(ord(content[i]), ord(content[i+2]) + 1):
+        elif i + 2 < len(content) and content[i + 1] == "-":
+            for c in range(ord(content[i]), ord(content[i + 2]) + 1):
                 pool.append(chr(c))
             i += 3
         else:
@@ -757,13 +857,13 @@ def _expand_char_class(content: str) -> str:
 
 def _shorthand_pool(c: str) -> str:
     return {
-        'd': string.digits,
-        'D': string.ascii_letters + ' ',
-        'w': string.ascii_letters + string.digits + '_',
-        'W': ' !@#$%^&*()',
-        's': ' \t\n',
-        'S': string.ascii_letters + string.digits,
-    }.get(c, '')
+        "d": string.digits,
+        "D": string.ascii_letters + " ",
+        "w": string.ascii_letters + string.digits + "_",
+        "W": " !@#$%^&*()",
+        "s": " \t\n",
+        "S": string.ascii_letters + string.digits,
+    }.get(c, "")
 
 
 def _pick_alternation_branch(pattern: str) -> str:
@@ -777,11 +877,15 @@ def _pick_alternation_branch(pattern: str) -> str:
     i = 0
     while i < len(pattern):
         c = pattern[i]
-        if c == '\\':
-            current.append(pattern[i:i+2]); i += 2; continue
-        if c == '(':  depth += 1
-        elif c == ')': depth -= 1
-        if c == '|' and depth == 0:
+        if c == "\\":
+            current.append(pattern[i : i + 2])
+            i += 2
+            continue
+        if c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+        if c == "|" and depth == 0:
             branches.append("".join(current))
             current = []
         else:
@@ -791,8 +895,9 @@ def _pick_alternation_branch(pattern: str) -> str:
     return random.choice(branches)
 
 
-
+def _matches_all_regex(s: str, patterns: list[str]) -> bool:
     import re
+
     for p in patterns:
         # Java .matches() is fully anchored
         if not re.fullmatch(p, s):
@@ -807,16 +912,17 @@ def _pool_from_pattern(pattern: str) -> str:
     biased toward characters likely to satisfy it.
     """
     import re
+
     pool_chars = set()
 
     # Explicit char classes [...]
-    for m in re.finditer(r'\[([^\]]+)\]', pattern):
+    for m in re.finditer(r"\[([^\]]+)\]", pattern):
         content = m.group(1)
         # Expand ranges like a-z, 0-9, A-Z
         i = 0
         while i < len(content):
-            if i + 2 < len(content) and content[i+1] == '-':
-                for c in range(ord(content[i]), ord(content[i+2]) + 1):
+            if i + 2 < len(content) and content[i + 1] == "-":
+                for c in range(ord(content[i]), ord(content[i + 2]) + 1):
                     pool_chars.add(chr(c))
                 i += 3
             else:
@@ -824,20 +930,20 @@ def _pool_from_pattern(pattern: str) -> str:
                 i += 1
 
     # Shorthand classes
-    if r'\d' in pattern:
+    if r"\d" in pattern:
         pool_chars.update(string.digits)
-    if r'\w' in pattern:
-        pool_chars.update(string.ascii_letters + string.digits + '_')
-    if r'\s' in pattern:
-        pool_chars.update(' \t\n')
-    if r'\D' not in pattern and r'\W' not in pattern:
+    if r"\w" in pattern:
+        pool_chars.update(string.ascii_letters + string.digits + "_")
+    if r"\s" in pattern:
+        pool_chars.update(" \t\n")
+    if r"\D" not in pattern and r"\W" not in pattern:
         # No exclusions — add letters as default filler
         pool_chars.update(string.ascii_letters)
 
     # Literal characters outside of groups (rough heuristic)
-    stripped = re.sub(r'\[.*?\]', '', pattern)
-    stripped = re.sub(r'\\[dDwWsS.]', '', stripped)
-    stripped = re.sub(r'[\\^$.*+?{}()|]', '', stripped)
+    stripped = re.sub(r"\[.*?\]", "", pattern)
+    stripped = re.sub(r"\\[dDwWsS.]", "", stripped)
+    stripped = re.sub(r"[\\^$.*+?{}()|]", "", stripped)
     pool_chars.update(c for c in stripped if c.isprintable())
 
     result = "".join(sorted(pool_chars))
