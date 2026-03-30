@@ -27,10 +27,17 @@ run_q() {
         local testname=$(basename "${infile%.in}")
         any=1
 
-        local cp_args=()
-        [ "$q" = "q4" ] && cp_args=(--class-path "gson.jar")
-        actual=$(java "${cp_args[@]}" "$src" < "$infile" 2>/dev/null)
-        expected=$(cat "$outfile")
+        local cp=""
+        case $q in
+            q4)                    cp="gson.jar";;
+            q16|q17|q18|q19|q20)  cp="jsoup.jar";;
+        esac
+        if [ -n "$cp" ]; then
+            actual=$(java --class-path "$cp" "$src" < "$infile" 2>/dev/null | tr -d '\r')
+        else
+            actual=$(java "$src" < "$infile" 2>/dev/null | tr -d '\r')
+        fi
+        expected=$(cat "$outfile" | tr -d '\r')
 
         if [ "$q" = "q5" ]; then
             ok=true
@@ -80,7 +87,7 @@ echo "────────────────────────�
 if [ -n "$1" ]; then
     run_q "$1"
 else
-    for q in q1 q2 q3 q4 q5 q6 q7 q8; do
+    for q in q1 q2 q3 q4 q5 q6 q7 q8 q16 q17 q18 q19 q20; do
         run_q "$q"
     done
 fi

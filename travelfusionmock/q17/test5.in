@@ -1,0 +1,9 @@
+<table>
+<tr><th>Destination</th><th>Price</th></tr>
+<tr><td>Los Angeles</td><td>550</td></tr>
+<tr><td>Chicago</td><td>210</td></tr>
+<tr><td>Miami</td><td>180</td></tr>
+<tr><td>Seattle</td><td>390</td></tr>
+<tr><td>Boston</td><td>230</td></tr>
+<tr><td>Denver</td><td>160</td></tr>
+</table>

@@ -1,0 +1,6 @@
+<table>
+<tr><th>Destination</th><th>Price</th></tr>
+<tr><td>Paris</td><td>99</td></tr>
+<tr><td>Madrid</td><td>120</td></tr>
+<tr><td>Rome</td><td>85</td></tr>
+</table>
